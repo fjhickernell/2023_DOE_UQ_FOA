@@ -22,6 +22,9 @@ amssymb
 \definecolor{niceblue}{rgb}{0.,0.,0.5}
 \definecolor{darkpink}{rgb}{0.8,0.47,0.47}
 
+\newcommand{\NOTE}[1]{\textcolor{blue}{ \bf[ #1 ]}}
+\newcommand{\FJHNOTE}[1]{\textcolor{blue}{FJH: \bf[ #1 ]}}
+
 \usepackage{url,hyperref}
 \hypersetup{colorlinks,citecolor=nicegreen,linkcolor=nicered,urlcolor=niceblue}
 
@@ -61,6 +64,8 @@ Fred J. Hickernell (Department of Applied Mathematics, Illinois Institute of Tec
 
 %Aurore Courtoy (Universidad Nacional Aut\'onoma de M\'exico)
 
+Pushpalatha C. Bhat (Particle Physics Division, Fermi National Accelerator Laboratory)
+
 Stefan H\"oche (Theory Division, Fermi National Accelerator Laboratory)
 
 \vspace{12pt}
@@ -77,7 +82,70 @@ Stefan H\"oche (Theory Division, Fermi National Accelerator Laboratory)
 
 \clearpage
 
-\noindent {\bf Research proposal summary:}
+\noindent {\bf Research proposal summary}
 \vspace{0.2cm}
+
+%\nocite{Cranmer:2019eaq,cybenko_approximation_1989,hornik_approximation_1991,hornik_universal_1990}
+
+{\bf Motivation}.
+Trustworthy  uncertainty quantification (UQ) holds the key to the success of
+a rapidly growing number of scientific AI/ML applications in the
+research areas supported by DOE. Introduction of AI/ML in numerical
+analyses of large data sets creates a paradox, whereby ML models
+are highly effective in finding good descriptions of complex data sets,
+while at the same time UQ on a vast ensemble of all such possible
+descriptions presents a challenging inverse problem of statistical
+inference \cite{Cranmer:2019eaq}. Increasing the number of latent parameters in deep-learning
+approaches expands the ability of the model to generalize the data, yet, such highly complex models tend to be difficult to interpret \cite{Shanahan:2022ifi} and less certain \cite{Puy:2022a}.
+UQ is thus critical for successful inference and reproducibility in any application that relies on AI/ML. 
+It is unlikely that a one-size-fits-all approach to UQ can be found.  Nevertheless, it is useful to view methods of UQ as approximations of the same goal, namely, distributing a given number of points within a finite subset of an AI/ML parameter space so that the points constitute a valid confidence or credible set. 
+Given that no one method is likely to be feasible for all AI/ML models, one is motivated to explore different methods of UQ depending upon the size of the AI/ML model under consideration. 
+We propose to explore three approaches to UQ: quasi Monte-Carlo methods, likelihood-free methods, and large-scale Bayesian methods that rely upon automatic differentiation. We especially consider quantitative inference using AI/ML in particle/nuclear physics, with the methods applicable to a wide range of problems and in other research domains. 
+
+
+\vspace{12pt}{\bf Exploration of multivariate likelihoods with quasi Monte-Carlo methods.}
+
+The co-PI's of our multidisciplinary collaboration bring in many
+decades of cumulative experience of working on high-impact problems
+in the areas of multivariate statistics of real data in particle
+and nuclear physics, AI/ML applications, and
+multidimensional integration. One target of our proposal is to use this
+expertise to develop a general-purpose computational framework for
+exploring the likelihood probability distribution in problems
+dependent on (many) hundreds of free parameters. Knowledge of the 
+likelihood in the full parameter space facilitates
+UQ for specific predictions, provided the fundamental computational
+challenges due to the curse of dimensionality \cite{Bellman:1961,Bishop:2006,Sloan:1997a,Sloan:1998b} or big-data paradox \cite{MengXL:2018,Hickernell:2018a} are resolved. To perform representative sampling of the likelihood, we will apply methods of
+dimensionality reduction and quasi-Monte Carlo (QMC) integration \cite{Lemieux:2009,Hickernell:2020a,LEcuyer:2020a,Hickernell:2018a}. For computing
+the expectation values, we will  classify directions in the model parameter space according
+to their contributions to the variation of the integrand. In many problems
+of interest, a few directions with the largest integrand variations 
+give the main contributions to the expectation value \cite{Caflisch:1997ValuationOM,Sloan:1998b,LiuOwen:2006}.  A typical UQ
+analysis of this kind would consist of vectorization of AI/ML predictions in terms
+of an ensemble of parameters of interest; identification of the
+parameter manifold (in the full parameter space) associated with the
+largest variation in the integrand of the expectation; and a change of the
+integration variables or preferential sampling of some
+directions to improve convergence of the QMC algorithm. 
+Our modular program will allow applications that may include, but are not limited to,
+electroweak and SMEFT physics \cite{Castro:2022zpq,deBlas:2022ofj},
+the analysis of the hadron structure \cite{Amoroso:2022eow,Courtoy:2022ocu}, 
+modeling of the systematic
+uncertainties at particle colliders \cite{Cranmer:2021urp}, and lattice QCD \cite{Boyda:2022nmh}. Some computer techniques and tools will be adapted from CERN ROOT \cite{CERNROOTWebsite} and other standalone implementations.
+
+\vspace{12pt}{\bf Likelihood-free methods.}
+Many methods have been developed for the UQ of AI/ML models\cite{ABDAR2021243}, but, unfortunately, almost all methods suffer from the need for calibration: a 68\% confidence set may, or may not, have a confidence level of 68\%. Recent work on
+likelihood-free, or simulation-based, methods \cite{Lee2021} have yielded inference algorithms with frequentist guarantees. For small AI/ML models, say those with fewer than 10,000 parameters, we propose to investigate the feasibility of likelihood-free methods to construct valid confidence sets in the parameter space of these models.
+The key requirement for the method to be applicable is that it must be possible to simulate training data given a randomly chosen point in the parameter space of the AI/ML model. If the noise model for the training data is known, then the latter can be simulated by computing the AI/ML model output for a given model parameter point and adding noise as appropriate.  A prototypical example from high-energy physics is the modeling of parton distribution functions (PDF) using neural networks. Given a point in the neural networks' parameter space it is possible to simulate the training data.
+Given an ensemble of simulated training data with each data set instance associated with a different AI/ML parameter point, likelihood-free inference can proceed in a manner that is independent of the sampling distribution over the AI/ML parameter space.
+
+\vspace{12pt}{\bf Large-scale Bayesian approaches.}
+From a Bayesian perspective, UQ is, in principle, straightforward \cite{kristiadi2022frequentist}: given the posterior density over the parameter space of an AI/ML model and a method to sample from it, for example, quasi-Monte Carlo, one generates a set of points that represents a credible set at a desired credible level. Unfortunately, even if the sampling problem is solved, current methods suffer from the lack of calibration: a credible set is not guaranteed to be at the desired credible level. Furthermore, there is the vexing problem of constructing a prior density over the AI/ML model parameter space. In many applications, the prior is chosen to be a diagonal multivariate Gaussian, but there is no reason to believe this to be the optimal choice. Indeed, many arguments lead to the conclusion that the natural measure on these spaces is proportional to the Jeffreys' prior (see, for example, \cite{Bala}) in spite of its known difficulties in high-dimensiomal spaces. We wish to explore methods, such as automatic differentiation, for approximating the Jeffreys' prior over AI/ML models and therefore a way to give an invariant meaning to the distance between parameter points and a way to construct geodesics away from the best-fit point of the AI/ML model. This in turn could provide insight into how best to distribute points in the AI/ML parameter space to approximate a credible set for UQ. 
+
+%\clearpage
+
+\bibliographystyle{utphys}
+\bibliography{uq_sciml}
+
 
 \end{document}
